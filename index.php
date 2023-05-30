@@ -6,10 +6,10 @@
     header('Content-Type: application/json; charset=utf-8');
 
     //$buf = file_get_contents('BLANK.torrent');
-    $buf = 'd4:dictd3:1234:test3:4565:thinge4:listl11:list-item-111:list-item-2e6:numberi123456e6:string5:valuee';
+    $data = 'd4:dictd3:1234:test3:4565:thinge4:listl11:list-item-111:list-item-2e6:numberi123456e6:string5:valuee';
 
-    $bencode = new Bencode($buf);
+    $bencode = new Bencode($data);
     $result = $bencode->decode();
 
-    print_r(json_encode($bencode, JSON_PRETTY_PRINT));
+    print_r(json_encode($result, JSON_PRETTY_PRINT));
 ?>

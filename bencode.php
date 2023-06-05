@@ -4,12 +4,13 @@
         private static $pos;
         private static $buf;
     
-        public function __construct($buf){
+        public function decode($data){
             self::$pos = 0;
-            self::$buf = array_values(unpack('C*', $buf));
+            self::$buf = array_values(unpack('C*', $data));
+            return self::decodeData();
         }
     
-        public function decode(){
+        public function decodeData(){
             $prefix = self::$buf[self::$pos];
     
             if($prefix === 105){
@@ -37,7 +38,7 @@
                 if($c < 48 || $c > 57){
                     throw new Exception('Invalid number');
                 }
-                $val = $val * 10 + ($c - 48);
+                $val = $val*10+($c-48);
             }
             self::$pos++;
             return $val;
@@ -50,10 +51,10 @@
                 if($c < 48 || $c > 57){
                     throw new Exception('Invalid number');
                 }
-                $length = $length * 10 + ($c - 48);
+                $length = $length*10+($c-48);
             }
-            $value = pack('C*', ...array_slice(self::$buf, self::$pos + 1, $length));
-            self::$pos += $length + 1;
+            $value = pack('C*', ...array_slice(self::$buf, self::$pos+1, $length));
+            self::$pos += $length+1;
             return $value;
         }
     
@@ -61,7 +62,7 @@
             self::$pos++;
             $list = [];
             while(self::$buf[self::$pos] !== 101){
-                $list[] = self::decode();
+                $list[] = self::decodeData();
             }
             self::$pos++;
             return $list;
@@ -72,11 +73,50 @@
             $dict = [];
             while(self::$buf[self::$pos] !== 101){
                 $key = self::string();
-                $value = self::decode();
+                $value = self::decodeData();
                 $dict[$key] = $value;
             }
             self::$pos++;
             return $dict;
+        }
+
+        public function encode($data){
+            return self::encodeData($data);
+        }
+
+        private function encodeData($data){
+            if(is_int($data)){
+                return 'i'.$data.'e';
+
+            }else if(is_string($data)){
+                return strlen($data).':'.$data;
+
+            }else if(is_object($data)){
+
+            }else if(is_array($data)){
+                if(self::isAssocArray($data)){
+                    $encodedData = 'd';
+                    foreach($data as $key => $value){
+                        $encodedData .= self::encodeData($key);
+                        $encodedData .= self::encodeData($value);
+                    }
+    
+                    $encodedData .= 'e';
+                    return $encodedData;
+                }
+
+                $encodedData = 'l';
+                foreach ($data as $item){
+                    $encodedData .= self::encodeData($item);
+                }
+                
+                $encodedData .= 'e';
+                return $encodedData;
+            }
+        }
+
+        private function isAssocArray($array){
+            return is_array($array) && array_keys($array) !== range(0, count($array)-1);
         }
     }
 ?>

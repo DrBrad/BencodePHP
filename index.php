@@ -12,4 +12,6 @@
     $result = $bencode->decode();
 
     print_r(json_encode($result, JSON_PRETTY_PRINT));
+
+    echo $bencode->encode($result);
 ?>

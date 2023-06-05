@@ -15,8 +15,10 @@ Here are some examples of how to use the Bencode library.
 //DATA MUST BE IN THE FORMAT: Uint8Array
 $data = 'd4:dictd3:1234:test3:4565:thinge4:listl11:list-item-111:list-item-2e6:numberi123456e6:string5:valuee';
 
-$bencode = new Bencode($data);
-$result = $bencode->decode();
+$bencode = new Bencode();
+$result = $bencode->decode($data);
 
 print_r(json_encode($result, JSON_PRETTY_PRINT));
+
+echo $bencode->encode($result);
 ```
